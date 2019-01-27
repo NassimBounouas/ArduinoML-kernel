@@ -4,6 +4,10 @@ import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.structural.*;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Quick and dirty visitor to support the generation of Wiring code
  */
@@ -72,8 +76,18 @@ public class ToWiring extends Visitor<StringBuffer> {
 
 	@Override
 	public void visit(Transition transition) {
-		w(String.format("  if( digitalRead(%d) == %s && guard ) {",
-				transition.getSensor().getPin(),transition.getValue()));
+		Set<Map.Entry<Sensor, SIGNAL>> conditions = transition.getAnd_conditions().entrySet();
+
+		w("  if(");
+		Iterator<Map.Entry<Sensor, SIGNAL>> it = conditions.iterator();
+		while (it.hasNext()) {
+			Map.Entry<Sensor, SIGNAL> cond = it.next();
+			w(String.format(" digitalRead(%d) == %s ",
+					cond.getKey().getPin(),cond.getValue()));
+			if (it.hasNext()) w(" && ");
+		}
+		w("&& guard ) {");
+
 		w("    time = millis();");
 		w(String.format("    state_%s();",transition.getNext().getName()));
 		w("  } else {");
