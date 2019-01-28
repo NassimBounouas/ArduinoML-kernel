@@ -79,35 +79,54 @@ public class ToWiring extends Visitor<StringBuffer> {
 			action.accept(this);
 		}
 
-		if (state.getTransition() != null) {
+		if(!state.getTransitions().isEmpty()) {
+			w("  boolean guard = millis() - time > debounce;");
+			context.put(CURRENT_STATE, state);
+			for (int i = 0; i < state.getTransitions().size(); i++) {
+				Transition t = state.getTransitions().get(i);
+				if (i == 0) t.setFirst(true);
+				if (i == state.getTransitions().size()-1) t.setLast(true);
+				t.accept(this);
+			}
+		}
+		w("}\n");
+		/*if (state.getTransition() != null) {
 			w("  boolean guard = millis() - time > debounce;");
 			context.put(CURRENT_STATE, state);
 			state.getTransition().accept(this);
 			w("}\n");
-		}
+		}*/
 	}
 
 	@Override
-	public void visit(Transition transition) {
+	public void visit(Transition transition, boolean isFirst, boolean isLast) {
 		Set<Map.Entry<Sensor, SIGNAL>> conditions = transition.getAnd_conditions().entrySet();
 
-		w("  if(");
-		Iterator<Map.Entry<Sensor, SIGNAL>> it = conditions.iterator();
-		while (it.hasNext()) {
-			Map.Entry<Sensor, SIGNAL> cond = it.next();
-			w(String.format(" digitalRead(%d) == %s ",
-					cond.getKey().getPin(),cond.getValue()));
-			if (it.hasNext()) w(" && ");
+		if (isFirst) {
+			w("  if(");
+		} else {
+			w("  else if(");
 		}
-		w("&& guard ) {");
+			Iterator<Map.Entry<Sensor, SIGNAL>> it = conditions.iterator();
+			while (it.hasNext()) {
+				Map.Entry<Sensor, SIGNAL> cond = it.next();
+				w(String.format(" digitalRead(%d) == %s ",
+						cond.getKey().getPin(),cond.getValue()));
+				if (it.hasNext()) w(" && ");
+			}
+			w("&& guard ) {");
 
-		w("    time = millis();");
-		w("    entry = true;");
-		w(String.format("    state_%s();",transition.getNext().getName()));
-		w("  } else {");
-		w("    entry = false;");
-		w(String.format("    state_%s();",((State) context.get(CURRENT_STATE)).getName()));
-		w("  }");
+			w("    time = millis();");
+			w("    entry = true;");
+			w(String.format("    state_%s();",transition.getNext().getName()));
+			w("  }");
+
+		if(isLast) {
+			w(" else {");
+				w("    entry = false;");
+				w(String.format("    state_%s();",((State) context.get(CURRENT_STATE)).getName()));
+				w("  }");
+		}
 	}
 
 	@Override

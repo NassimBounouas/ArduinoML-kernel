@@ -9,13 +9,14 @@ import javafx.util.Pair;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class State implements NamedElement, Visitable {
 
 	private String name;
 	private List<Action> actions = new ArrayList<Action>();
-	private Transition transition;
-
+	//private Transition transition;
+	private List<Transition> transitions = new ArrayList<Transition>();
 	// List of Tones as Pair<Actuator, DURATION_MS>
 	private List<Pair<Actuator, Integer>> tones = new ArrayList<>();
 
@@ -37,6 +38,14 @@ public class State implements NamedElement, Visitable {
 		this.actions = actions;
 	}
 
+
+	public Transition getTransition(State dest) {
+		for (Transition t : this.transitions) {
+			if (t.getNext().equals(dest)) return t;
+		}
+		return null;
+	}
+	/*
 	public Transition getTransition() {
 		return transition;
 	}
@@ -44,7 +53,15 @@ public class State implements NamedElement, Visitable {
 	public void setTransition(Transition transition) {
 		this.transition = transition;
 	}
+	*/
 
+	public List<Transition> getTransitions() {
+		return transitions;
+	}
+
+	public void addTransition(Transition transition) {
+		this.transitions.add(transition);
+	}
 	@Override
 	public void accept(Visitor visitor) {
 		visitor.visit(this);
@@ -75,4 +92,17 @@ public class State implements NamedElement, Visitable {
             this.getTones().add(new Pair<>(actuator, 200));
         }
     }
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		State state = (State) o;
+		return Objects.equals(name, state.name);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(name);
+	}
 }
