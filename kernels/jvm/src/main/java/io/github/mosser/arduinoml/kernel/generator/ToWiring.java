@@ -63,12 +63,12 @@ public class ToWiring extends Visitor<StringBuffer> {
 	public void visit(State state) {
 		w(String.format("void state_%s() {",state.getName()));
 
-        for (Pair<Integer, Integer> tone : state.getTones()) {
+        for (Pair<Actuator, Integer> tone : state.getTones()) {
             // Build entry tone sequence
             // For each tone in the sequence
-            w("  tone(" + tone.getKey() + ", 880);"); // PIN_ID
+            w("  tone(" + tone.getKey().getPin() + ", 880);");
             w("  delay(" + tone.getValue() + ");"); // DURATION_MS
-            w("  noTone(" + tone.getKey() + ");"); // PIN_ID
+            w("  noTone(" + tone.getKey().getPin() + ");");
         }
 
 		for(Action action: state.getActions()) {
