@@ -36,6 +36,7 @@ public class ToWiring extends Visitor<StringBuffer> {
 		w("}\n");
 
 		w("long time = 0; long debounce = 200;\n");
+		w( "bool entry = true;\n");
 
 		for(State state: app.getStates()){
 			state.accept(this);
@@ -63,13 +64,16 @@ public class ToWiring extends Visitor<StringBuffer> {
 	public void visit(State state) {
 		w(String.format("void state_%s() {",state.getName()));
 
+		w("if(entry) {");
         for (Pair<Actuator, Integer> tone : state.getTones()) {
             // Build entry tone sequence
             // For each tone in the sequence
             w("  tone(" + tone.getKey().getPin() + ", 880);");
             w("  delay(" + tone.getValue() + ");"); // DURATION_MS
             w("  noTone(" + tone.getKey().getPin() + ");");
+            w("  delay(500);");
         }
+		w("}");
 
 		for(Action action: state.getActions()) {
 			action.accept(this);
@@ -81,7 +85,6 @@ public class ToWiring extends Visitor<StringBuffer> {
 			state.getTransition().accept(this);
 			w("}\n");
 		}
-
 	}
 
 	@Override
@@ -99,8 +102,10 @@ public class ToWiring extends Visitor<StringBuffer> {
 		w("&& guard ) {");
 
 		w("    time = millis();");
+		w("    entry = true;");
 		w(String.format("    state_%s();",transition.getNext().getName()));
 		w("  } else {");
+		w("    entry = false;");
 		w(String.format("    state_%s();",((State) context.get(CURRENT_STATE)).getName()));
 		w("  }");
 	}
