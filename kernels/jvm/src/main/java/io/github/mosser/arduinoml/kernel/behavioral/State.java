@@ -17,7 +17,7 @@ public class State implements NamedElement, Visitable {
 	private Transition transition;
 
 	// List of Tones as Pair<Actuator, DURATION_MS>
-	private List<Pair<Actuator, Integer>> tones = new LinkedList<>();
+	private List<Pair<Actuator, Integer>> tones = new ArrayList<>();
 
 	@Override
 	public String getName() {
