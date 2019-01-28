@@ -3,6 +3,7 @@ package io.github.mosser.arduinoml.kernel.generator;
 import io.github.mosser.arduinoml.kernel.App;
 import io.github.mosser.arduinoml.kernel.behavioral.*;
 import io.github.mosser.arduinoml.kernel.structural.*;
+import javafx.util.Pair;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -61,6 +62,15 @@ public class ToWiring extends Visitor<StringBuffer> {
 	@Override
 	public void visit(State state) {
 		w(String.format("void state_%s() {",state.getName()));
+
+        for (Pair<Integer, Integer> tone : state.getTones()) {
+            // Build entry tone sequence
+            // For each tone in the sequence
+            w("  tone(" + tone.getKey() + ", 880);"); // PIN_ID
+            w("  delay(" + tone.getValue() + ");"); // DURATION_MS
+            w("  noTone(" + tone.getKey() + ");"); // PIN_ID
+        }
+
 		for(Action action: state.getActions()) {
 			action.accept(this);
 		}
