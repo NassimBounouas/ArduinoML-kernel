@@ -11,6 +11,8 @@ public class Transition implements Visitable {
 	private State next;
 	//private Sensor sensor;
 	//private SIGNAL value;
+	private boolean isFirst = false;
+	private boolean isLast = false;
 	private HashMap<Sensor, SIGNAL> and_conditions = new HashMap();
 
 	public State getNext() {
@@ -39,12 +41,20 @@ public class Transition implements Visitable {
 	}
 	*/
 
+	public void setFirst(boolean first) {
+		isFirst = first;
+	}
+
+	public void setLast(boolean last) {
+		isLast = last;
+	}
+
 	public HashMap<Sensor, SIGNAL> getAnd_conditions() {
 		return and_conditions;
 	}
 
 	@Override
 	public void accept(Visitor visitor) {
-		visitor.visit(this);
+		visitor.visit(this, this.isFirst, this.isLast);
 	}
 }
