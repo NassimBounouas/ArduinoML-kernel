@@ -68,7 +68,7 @@ public class ToWiring extends Visitor<StringBuffer> {
         for (Pair<Actuator, Integer> tone : state.getTones()) {
             // Build entry tone sequence
             // For each tone in the sequence
-            w("  tone(" + tone.getKey().getPin() + ", 880);");
+            w("  tone(" + tone.getKey().getPin() + ", 440);");
             w("  delay(" + tone.getValue() + ");"); // DURATION_MS
             w("  noTone(" + tone.getKey().getPin() + ");");
             w("  delay(500);");

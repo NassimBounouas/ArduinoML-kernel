@@ -69,10 +69,10 @@ public class State implements NamedElement, Visitable {
      */
     public void addTone(Actuator actuator, String tone_type) {
         if (tone_type.toUpperCase().equals("LONG")) {
-            this.getTones().add(new Pair<>(actuator, 1000));
+            this.getTones().add(new Pair<>(actuator, 800));
         } else {
             // "SHORT"
-            this.getTones().add(new Pair<>(actuator, 500));
+            this.getTones().add(new Pair<>(actuator, 200));
         }
     }
 }
